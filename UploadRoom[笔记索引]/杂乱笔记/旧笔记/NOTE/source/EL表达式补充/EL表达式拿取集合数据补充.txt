@@ -1,0 +1,187 @@
+EL表达式从数组 Map List集合取值 (2012-10-18 23:06:54)
+ 
+Jstl是sun的标准taglib库，Jstl是标签库和el语言的结合。
+
+ el 表达式的隐含对象pageScope，requestScope，sessionScope，applicationScope，比如${hello}语 句首先会从pageScope开始逐个查找scope中的属性，指定域对象语句为${requestScope.hello}
+
+1.与 [ ] 运算符  
+
+ EL 提供 . 和 [ ] 两种运算符来导航数据。下列两者所代表的意思是一样的：
+
+ ${sessionScope.user.sex}等于${sessionScope.user["sex"]}
+
+ . 和 [ ] 也可以同时混合使用，如下：
+
+ ${sessionScope.shoppingCart[0].price}
+
+ 回传结果为shoppingCart中第一项物品的价格。
+
+ 不过，以下两种情况，两者会有差异：
+
+ (1) 当要存取的属性名称中包含一些特殊字符，如. 或 – 等并非字母或以数字开头的符号，就一定要使用 [ ]，例如：${user.My-Name }
+
+ 上述是不正确的方式，应当改为：${user["My-Name"] }
+
+ (2) 我们来考虑下列情况：
+
+ ${sessionScope.user[data]}
+
+ 此时，data 是一个变量，假若data的值为"sex"时，那上述的例子等于${sessionScope.user.sex}；
+
+ 假若data 的值为"name"时，它就等于${sessionScope.user.name}。因此，如果要动态取值时，就可以用上述的方法来做，但. 无法做到动态取值。
+
+ 注意：(使用[]时，里面是String类型要加双引号“”！！！！！，是数字，就直接写数字，不要加双引号)
+
+ (3)数组或集合的索引只能使用[]
+
+   如：${sessionScope.user[0]}     ${sessionScope.list[1].name}
+
+ 属性值：${hello}
+
+ 对象值
+
+ 姓名：${user.username}
+
+ 年龄：${user.age}
+
+ 所属组：${user.group.name}
+
+1、map集合
+   在EL中，方括号运算符用来检索数组和集合的元素。对于实现 java.util.Map 接口的集合，方括号运算符使用关联的键查找存储在映射中的值。
+ 在方括号中指定键，并将相应的值作为表达式的值返回。例如，表达式 ${map['key']} 返回与 map标识符所引用的 Map 中的 "key" 键相关联的值。
+ 当forEach 的items属性中的表达式的值是java.util.Map时，则var中命名的变量的类型就是 java.util.Map.Entry。这时var=entry的话，用表达式${entry.key}取得键名。 用表达${entry.value}得到每个entry的值。这是因为java.util.Map.Entry对象有getKey和getValue方法，表达式语言遵守JavaBean的命名约定。
+      <%
+Map<String,String> map2 = new HashMap();
+ map2.put("a","hello world");
+ map2.put("b","this is map");
+ request.setAttribute("map2",map2);
+      %>
+ <br>
+     键值对遍历<br>
+ <c:forEach var="item" items="${map2}">
+ ${item.key} > ${item.value} <br>
+ </c:forEach>
+     键遍历<br>
+ <c:forEach var="item" items="${map2}">
+ ${item.key}<br>
+ </c:forEach>
+    值遍历<br>
+ <c:forEach var="item" items="${map2}">
+   ${item.value}<br>
+ </c:forEach>
+     根据键遍历值<br>
+<c:forEach var="item" items="${map2}">
+   ${item['a']}<br>
+  ${item['b']}<br>
+ </c:forEach>
+  <body>
+ <br><br>
+ <%
+ List<String> list = new ArrayList<String>();
+ list.add("first");
+ list.add("second");
+ List<String> list2 = new ArrayList<String>();
+ list2.add("aaaaaa");
+ list2.add("bbbbbb");
+Map<String,List<String>> map = new HashMap();//(List<Map(k,v)>同理)
+ map.put("a",list);
+ map.put("b",list2);
+ request.setAttribute("map",map);
+ %>
+   通过键获得列表值，并遍历列表<br>
+ <c:forEach var="item" items="${map['a']}">
+ ${item }<br>
+ </c:forEach><br>
+ <c:forEach var="item" items="${map['b']}">
+ ${item }<br>
+ </c:forEach> <br>
+  map中值为列表，直接遍历列表中的每一项<br>
+<c:forEach var="item" items="${map}">
+ <c:forEach items="${item.value}" var="it">
+ ${it }<br>
+ </c:forEach>
+ </c:forEach>
+
+但是要注意，如果你的numberMap是这样的：
+
+      HashMap<Integer, String> numberMap= new HashMap<Integer, String>();
+      numberMap.put(0, "零");
+      numberMap.put(1, "一");
+ 在jsp页面中${numberMap[1]}将取不到值，因为el表达式中数字1是Long类型（好BT啊，都没加L啊），无法匹配到numberMap中的Integer 1 。明白了原理，事儿就好办了。修改numberMap：
+      HashMap<Long, String> map = new HashMap<Long, String>();
+      map.put(0L, "零");
+      map.put(1L, "一");
+ 然后就随心所欲哈${numberMap[1]}
+
+2、数组
+
+ 假设Action中有数组
+
+ Char[] char={“1”.”2”};
+
+ request.setAttribute(“char”,char);
+
+ ${char[1]}
+
+ 数组中的对象
+
+ User[] users=new User[10]；
+
+ for(int i=0;i<10;i++)
+
+ {
+
+   User u=new User();
+
+   u.setUsername(“U_”+i);
+
+   users[i]=u;
+
+ }
+
+ request.setAttribute(“users”,users);
+
+ ${users[1].username}
+
+list集合（set集合同理）
+
+ List list=new ArrayList();
+
+ list.add(user1);
+
+ list.add(user2);
+
+ list.add(user3);
+
+ request.setAttribute(“list”,list);
+
+ 取单个值： ${list[3].username}
+
+遍历取值：<c:forEach var="user" items="${list}">
+
+             <c:out value="${user.username}" />
+
+          </c:forEach>
+ el表达式对运算符的支持
+
+ 1+2=${1+2}
+
+ 10/5=${10/5}
+
+ 10 div 5=${10 div 5}
+
+ 10%3=${10%3}
+
+ 10 mod 3=${10 mod 3}
+
+ el表达式支持算数运算符和逻辑运算符
+
+ el表达式的函数
+
+ 判断值是否为空：
+
+ ${empty  scope中的属性名}
+
+ 判断值为非空：
+
+ ${!empty  scope中的属性名}

@@ -1,0 +1,45 @@
+                 
+        
+
+
+       sudo service mysqld start	service start mysql 
+       sudo service mysqld stop		service stop mysql
+       sudo service mysqld restart			
+mysql查看字符集：  show variables like 'char%';
+
+mysql查看用户：    select user,host from mysql.user;
+
+mysql删除匿名用户: delete from mysql.user where user='';
+
+mysql插入新用户：  insert into mysql.user(Host,User,Password) values
+                   ("localhost","yourusername",password("yourpassword"));
+
+刷新操作：flush privileges;
+
+mysql修改用户密码：set password for root@localhost=password('password');
+
+mysql登陆：        mysql -u root -p${password};
+mysql退出：        exit;
+
+给本地用户赋予所有权限： grant all privileges on 数据库名字.* to 用户名@localhost 
+			identified by  'yourpassword';
+给账号开通外网所有权限： grant all privileges on 数据库名字.* to  用户名@'%' 
+     			identified by 'yourpassword';
+给账号设置指定权限:      grant all privileges on mall.* to mall@'%' identified by 'mall' 
+                        with grant option;
+
+-----
+dql --select  
+dml --insert update delete 
+ddl --create table create view 
+dcl --grant        
+ 
+
+创建数据库  CREATE DATABASE  book DEFAULT CHARACTER SET utf8 COLLATE utf8_bin;
+    use book;
+	create table category(
+    	id  varchar(32) primary key,
+    	name varchar(32) 
+	) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 ;
+
+查看权限账号： select * from mysql.user \G;  (\G 表示格式化)

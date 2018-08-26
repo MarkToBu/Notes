@@ -1,0 +1,54 @@
+jdbc:oracle:thin:@localhost:1521:orcl                ---oracle
+
+jdbc:mysql:///et1803?useUnicode=true&characterEncoding=UTF-8   ---mysql
+
+
+--建表语句
+ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;  -- mysql乱码
+
+ 
+3.关于主键的处理？JDBC /Hibernate/MyBATIS
+	字符串：
+		手动（程序）生成:
+				1.String key = UUID.randomUUID().toString().replace("-","")
+				2.某种固定的格式
+				class IDGenerator{
+					public String getKey(){
+						return "et"+getNY()+getNum();
+					}
+					public String getNY(){...}
+					public String getNum(){....}
+				}
+				
+			insert into category(id,name)values(?,?);
+			pst.setString(1,key/IDGenerator.getKey());
+			pst.String(2,ca.getName());
+		数据库（函数）生成：
+			1. MySQL: replace(uuid(),"-","")
+			2. oracle: sys_guid()
+			
+			insert into category(id,name)values(replace(uuid(),"-","")/sys_guid(),?);
+			pst.setString(1,ca.getName());
+	数字：
+		手动:
+			1.通过程序实现
+		数据库：
+			1.mysql
+				===>自动增长语句  auto_increment
+				insert into category(name)values(?)
+			2.oracle
+				===>通过序列生成:select etoak_seq.nextval from dual
+				insert into category(id,name)(etoak_seq.nextval,?);
+				
+				
+				===>通过最大id+1:
+					1.select max(id)+1 as id from xxx;
+					==>101
+				
+					insert into category(id,name)(?,?);
+					pst.setInt(1,101);
+ 
+		
+ 
+	
+
